@@ -1,4 +1,5 @@
-﻿using System.Xml.Linq;
+﻿using System;
+using System.Xml.Linq;
 
 namespace MainSMS
 {
@@ -33,6 +34,8 @@ namespace MainSMS
 		/// <param name="response">The response.</param>
 		protected BaseResponse(XContainer response)
 		{
+			if (response == null) throw new ArgumentNullException(nameof(response));
+			
 			Response = response.Element("result");
 		}
 

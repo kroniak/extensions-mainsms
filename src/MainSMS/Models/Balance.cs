@@ -17,21 +17,9 @@ namespace MainSMS
 		/// Initializes a new instance of the <see cref="Balance"/> class.
 		/// </summary>
 		/// <param name="response">The response.</param>
-		public Balance(XContainer response) : base (response)
+		public Balance(XContainer response) : base(response)
 		{
-			try
-			{
-				if (ErrorsHandler())
-				{
-					BalanceValue = Response.Element("balance")?.Value;
-				}
-			}
-			catch
-			{
-				Status = "error";
-				ErrorMessage = "Неизвестная ошибка, возможно проблемы с соединением.";
-				Error = "-1";
-			}
+			BalanceValue = ErrorsHandler() ? Response.Element("balance")?.Value : null;
 		}
 	}
 }

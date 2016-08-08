@@ -3,7 +3,9 @@ using System.Linq;
 using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
+using System.Xml.Linq;
 using Flurl;
+using Flurl.Http;
 using Flurl.Http.Xml;
 
 namespace MainSMS
@@ -60,7 +62,7 @@ namespace MainSMS
 
 			_apiKey = apiKey;
 
-			ApiUrl= "https://mainsms.ru/api/mainsms/message/"
+			ApiUrl = "https://mainsms.ru/api/mainsms/message/"
 				.SetQueryParams(new { project, format = ResponseType });
 		}
 
@@ -72,10 +74,39 @@ namespace MainSMS
 			var url = ApiUrl
 				.AppendPathSegment("balance");
 
-			var responce = await PrepareUrl(url)
-				.GetXDocumentAsync();
+			var responce = await GetXDocumentAsync(url);
 
 			return new Balance(responce);
+		}
+
+		private async Task<XDocument> GetXDocumentAsync(Url url)
+		{
+			XDocument response;
+
+			var errorResponse = new XDocument(
+				new XElement("result",
+					new XElement("status", "error"),
+					new XElement("message","")));
+
+			var errorMessage = errorResponse.Element("result").Element("message");
+
+			try
+			{
+				response = await PrepareUrl(url)
+					.GetXDocumentAsync();
+			}
+			catch (FlurlHttpException ex)
+			{
+				errorMessage.SetValue(ex.Message);
+				response = errorResponse;
+			}
+			catch (Exception ex)
+			{
+				errorMessage.SetValue(ex.Message);
+				response = errorResponse;
+			}
+
+			return response;
 		}
 
 		/// <summary>
