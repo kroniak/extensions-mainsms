@@ -9,22 +9,31 @@ namespace MainSMS
 	public abstract class BaseResponse
 	{
 		/// <summary>
-		/// The error
+		/// Gets the error code.
 		/// </summary>
-		public string Error;
+		/// <value>
+		/// The error code.
+		/// </value>
+		public string ErrorCode { get; private set; }
 
 		/// <summary>
-		/// The error message
+		/// Gets the error message.
 		/// </summary>
-		public string ErrorMessage;
+		/// <value>
+		/// The error message.
+		/// </value>
+		public string ErrorMessage { get; protected set; }
 
 		/// <summary>
-		/// The status
+		/// Gets the status.
 		/// </summary>
-		public string Status;
+		/// <value>
+		/// The status.
+		/// </value>
+		public string Status { get; protected set; }
 
 		/// <summary>
-		/// The responce
+		/// The response.
 		/// </summary>
 		protected readonly XContainer Response;
 
@@ -51,7 +60,7 @@ namespace MainSMS
 			}
 
 			Status = "error";
-			Error = Response?.Element("error")?.Value;
+			ErrorCode = Response?.Element("error")?.Value;
 			ErrorMessage = Response?.Element("message")?.Value;
 			return false;
 		}

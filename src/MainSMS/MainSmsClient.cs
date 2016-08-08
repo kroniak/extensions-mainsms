@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Security.Cryptography;
 using System.Text;
@@ -25,7 +27,7 @@ namespace MainSMS
 		{
 			get
 			{
-				return TestMode ? TestUrl : _apiUrl;
+				return _testMode ? TestUrl : _apiUrl;
 			}
 			set { _apiUrl = value; }
 		}
@@ -38,7 +40,7 @@ namespace MainSMS
 		/// <value>
 		///   <c>true</c> if [test mode]; otherwise, <c>false</c>.
 		/// </value>
-		public bool TestMode { private get; set; }
+		private bool _testMode;
 
 		/// <summary>
 		/// Gets or sets the test URL.
@@ -67,16 +69,90 @@ namespace MainSMS
 		}
 
 		/// <summary>
+		/// Gets the test client.
+		/// </summary>
+		public MainSmsClient GetTestClient()
+		{
+			_testMode = true;
+			return this;
+		}
+
+		/// <summary>
+		/// Gets the test client.
+		/// </summary>
+		/// <param name="testUrl">The test URL.</param>
+		public MainSmsClient GetTestClient(string testUrl)
+		{
+			TestUrl = testUrl;
+			return GetTestClient();
+		}
+
+		/// <summary>
 		/// Gets the balance.
 		/// </summary>
-		public async Task<Balance> GetBalanceAsync()
+		public async Task<BalanceInfo> GetBalanceAsync()
 		{
 			var url = ApiUrl
 				.AppendPathSegment("balance");
 
 			var responce = await GetXDocumentAsync(url);
 
-			return new Balance(responce);
+			return new BalanceInfo(responce);
+		}
+
+		/// <summary>
+		/// Gets the phones information asynchronous.
+		/// </summary>
+		/// <param name="phones">The phones separeted by semicolons.</param>
+		public async Task<PhonesInfo> GetInfoAsync(string phones)
+		{
+			var url = ApiUrl
+				.AppendPathSegment("info")
+				.SetQueryParam("phones", phones);
+
+			var responce = await GetXDocumentAsync(url);
+
+			return new PhonesInfo(responce);
+		}
+
+		/// <summary>
+		/// Gets the phones information asynchronous.
+		/// </summary>
+		/// <param name="phones">The phones.</param>
+		public async Task<PhonesInfo> GetInfoAsync(IEnumerable<string> phones)
+		{
+			var phonesSemi = string.Join(",", phones.ToArray());
+
+			return await GetInfoAsync(phonesSemi);
+		}
+
+		/// <summary>
+		/// Gets the price asynchronous.
+		/// </summary>
+		/// <param name="recipients">The recipients phones.</param>
+		/// <param name="message">The message in UTF8.</param>
+		public async Task<PriceInfo> GetPriceAsync(string recipients, string message)
+		{
+			var url = ApiUrl
+				.AppendPathSegment("price")
+				.SetQueryParam("recipients", recipients)
+				.SetQueryParam("message", message);
+
+			var responce = await GetXDocumentAsync(url);
+
+			return new PriceInfo(responce);
+		}
+
+		/// <summary>
+		/// Gets the price asynchronous.
+		/// </summary>
+		/// <param name="recipients">The recipients phones.</param>
+		/// <param name="message">The message in UTF8.</param>
+		public async Task<PriceInfo> GetPriceAsync(IEnumerable<string> recipients, string message)
+		{
+			var recipientsSemi = string.Join(",", recipients.ToArray());
+
+			return await GetPriceAsync(recipientsSemi, message);
 		}
 
 		private async Task<XDocument> GetXDocumentAsync(Url url)
@@ -86,9 +162,9 @@ namespace MainSMS
 			var errorResponse = new XDocument(
 				new XElement("result",
 					new XElement("status", "error"),
-					new XElement("message","")));
+					new XElement("message", "")));
 
-			var errorMessage = errorResponse.Element("result").Element("message");
+			var errorMessage = errorResponse.Element("result")?.Element("message");
 
 			try
 			{
@@ -97,12 +173,12 @@ namespace MainSMS
 			}
 			catch (FlurlHttpException ex)
 			{
-				errorMessage.SetValue(ex.Message);
+				errorMessage?.SetValue(ex.Message);
 				response = errorResponse;
 			}
 			catch (Exception ex)
 			{
-				errorMessage.SetValue(ex.Message);
+				errorMessage?.SetValue(ex.Message);
 				response = errorResponse;
 			}
 
@@ -139,6 +215,39 @@ namespace MainSMS
 		{
 			var bytes = Encoding.UTF8.GetBytes(text);
 			return hashString.ComputeHash(bytes).Aggregate("", (current, num) => current + $"{num:x2}");
+		}
+
+		/// <summary>
+		/// Gets the double.
+		/// </summary>
+		/// <param name="from">From.</param>
+		/// <param name="key">The key.</param>
+		/// <param name="result">The result.</param>
+		internal static bool TryGetDouble(XContainer from, string key, out double result)
+		{
+			result = 0;
+
+			var element = from.Element(key);
+			try
+			{
+				if (element?.Value == null)
+					return false;
+
+				//Try parsing in the current culture
+				if (double.TryParse(element.Value, NumberStyles.Any, CultureInfo.CurrentCulture, out result) ||
+					double.TryParse(element.Value, NumberStyles.Any, new CultureInfo("en-US"),
+						out result) ||
+					double.TryParse(element.Value, NumberStyles.Any, CultureInfo.InvariantCulture, out result))
+
+					return true;
+
+				result = 0;
+				return false;
+			}
+			catch (FormatException)
+			{
+				return false;
+			}
 		}
 	}
 }
