@@ -4,21 +4,13 @@ using System.Xml.Linq;
 namespace MainSMS
 {
 	/// <summary>
-	/// Response with messages status.
+	///     Response with messages status.
 	/// </summary>
 	/// <seealso cref="BaseResponse" />
 	public class MessagesInfo : BaseResponse
 	{
 		/// <summary>
-		/// Gets the statuses of the messages.
-		/// </summary>
-		/// <value>
-		/// The statuses.
-		/// </value>
-		public Dictionary<string, string> Statuses { get; }
-
-		/// <summary>
-		/// Initializes a new instance of the <see cref="MessagesInfo"/> class.
+		///     Initializes a new instance of the <see cref="MessagesInfo" /> class.
 		/// </summary>
 		/// <param name="response">The response.</param>
 		public MessagesInfo(XContainer response) : base(response)
@@ -37,10 +29,16 @@ namespace MainSMS
 			}
 
 			foreach (var element in xElements)
-			{
 				if (element?.Value != null)
 					Statuses.Add(element.Name.LocalName.Replace("id", ""), element.Value);
-			}
 		}
+
+		/// <summary>
+		///     Gets the statuses of the messages.
+		/// </summary>
+		/// <value>
+		///     The statuses.
+		/// </value>
+		public Dictionary<string, string> Statuses { get; }
 	}
 }

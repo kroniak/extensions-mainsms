@@ -8,55 +8,37 @@ using System.Xml.Linq;
 using Flurl;
 using Flurl.Http;
 using Flurl.Http.Xml;
-
 #if NETSTD
 using System.Text.Encodings.Web;	
 #elif NET45
 using System.Web;
+
 #endif
 
 namespace MainSMS
 {
 	/// <summary>
-	/// Main client class to MainSMS API.
+	///     Main client class to MainSMS API.
 	/// </summary>
 	public class MainSmsClient
 	{
 		// Default  type for response
 		private const string ResponseType = "xml";
 
-		private string _apiUrl;
-
-		// Defalut API URL
-		private string ApiUrl
-		{
-			get
-			{
-				return _testMode ? TestUrl : _apiUrl;
-			}
-			set { _apiUrl = value; }
-		}
-
 		private readonly string _apiKey;
 
+		private string _apiUrl;
+
 		/// <summary>
-		/// Gets or sets a value indicating whether [test mode].
+		///     Gets or sets a value indicating whether [test mode].
 		/// </summary>
 		/// <value>
-		///   <c>true</c> if [test mode]; otherwise, <c>false</c>.
+		///     <c>true</c> if [test mode]; otherwise, <c>false</c>.
 		/// </value>
 		private bool _testMode;
 
 		/// <summary>
-		/// Gets or sets the test URL.
-		/// </summary>
-		/// <value>
-		/// The test URL.
-		/// </value>
-		public string TestUrl { private get; set; }
-
-		/// <summary>
-		/// Initializes a new instance of the <see cref="MainSmsClient"/> class.
+		///     Initializes a new instance of the <see cref="MainSmsClient" /> class.
 		/// </summary>
 		/// <param name="project">The project.</param>
 		/// <param name="apiKey">The API key.</param>
@@ -70,11 +52,26 @@ namespace MainSMS
 			_apiKey = apiKey;
 
 			ApiUrl = "https://mainsms.ru/api/mainsms/message/"
-				.SetQueryParams(new { project, format = ResponseType });
+				.SetQueryParams(new {project, format = ResponseType});
+		}
+
+		// Defalut API URL
+		private string ApiUrl
+		{
+			get { return _testMode ? TestUrl : _apiUrl; }
+			set { _apiUrl = value; }
 		}
 
 		/// <summary>
-		/// Gets the test client.
+		///     Gets or sets the test URL.
+		/// </summary>
+		/// <value>
+		///     The test URL.
+		/// </value>
+		public string TestUrl { private get; set; }
+
+		/// <summary>
+		///     Gets the test client.
 		/// </summary>
 		public MainSmsClient GetTestClient()
 		{
@@ -83,7 +80,7 @@ namespace MainSMS
 		}
 
 		/// <summary>
-		/// Gets the test client.
+		///     Gets the test client.
 		/// </summary>
 		/// <param name="testUrl">The test URL.</param>
 		public MainSmsClient GetTestClient(string testUrl)
@@ -93,7 +90,7 @@ namespace MainSMS
 		}
 
 		/// <summary>
-		/// Gets the balance.
+		///     Gets the balance.
 		/// </summary>
 		public async Task<BalanceInfo> GetBalanceAsync()
 		{
@@ -106,7 +103,7 @@ namespace MainSMS
 		}
 
 		/// <summary>
-		/// Gets the statuses asynchronous.
+		///     Gets the statuses asynchronous.
 		/// </summary>
 		/// <param name="messagesIds">The messages ids separeted by semicolons.</param>
 		public async Task<MessagesInfo> GetStatusesAsync(string messagesIds)
@@ -121,14 +118,14 @@ namespace MainSMS
 		}
 
 		/// <summary>
-		/// Gets the statuses asynchronous.
+		///     Gets the statuses asynchronous.
 		/// </summary>
 		/// <param name="messageId">The message id.</param>
 		public async Task<MessagesInfo> GetStatusAsync(int messageId)
 			=> await GetStatusesAsync(messageId.ToString());
 
 		/// <summary>
-		/// Gets the statuses asynchronous.
+		///     Gets the statuses asynchronous.
 		/// </summary>
 		/// <param name="messagesIds">The messages ids.</param>
 		public async Task<MessagesInfo> GetStatusesAsync(IEnumerable<int> messagesIds)
@@ -139,7 +136,7 @@ namespace MainSMS
 		}
 
 		/// <summary>
-		/// Gets the phones information asynchronous.
+		///     Gets the phones information asynchronous.
 		/// </summary>
 		/// <param name="phones">The phones separeted by semicolons.</param>
 		public async Task<PhonesInfo> GetInfoAsync(string phones)
@@ -154,7 +151,7 @@ namespace MainSMS
 		}
 
 		/// <summary>
-		/// Gets the phones information asynchronous.
+		///     Gets the phones information asynchronous.
 		/// </summary>
 		/// <param name="phones">The phones.</param>
 		public async Task<PhonesInfo> GetInfoAsync(IEnumerable<string> phones)
@@ -165,7 +162,7 @@ namespace MainSMS
 		}
 
 		/// <summary>
-		/// Gets the price asynchronous.
+		///     Gets the price asynchronous.
 		/// </summary>
 		/// <param name="recipients">The recipients phones.</param>
 		/// <param name="message">The message in UTF8.</param>
@@ -182,7 +179,7 @@ namespace MainSMS
 		}
 
 		/// <summary>
-		/// Gets the price asynchronous.
+		///     Gets the price asynchronous.
 		/// </summary>
 		/// <param name="recipients">The recipients phones.</param>
 		/// <param name="message">The message in UTF8.</param>
@@ -194,14 +191,15 @@ namespace MainSMS
 		}
 
 		/// <summary>
-		/// Sends the message asynchronous.
+		///     Sends the message asynchronous.
 		/// </summary>
 		/// <param name="recipients">The recipients phones.</param>
 		/// <param name="message">The message in UTF8.</param>
 		/// <param name="sender">The sender name from 5 to 11 chars, latin and numeric only.</param>
 		/// <param name="startDateTime">Send message at this time in your time zone.</param>
 		/// <param name="testMode">If set to <c>true</c> [test mode].</param>
-		public async Task<SendResult> SendAsync(string recipients, string message, string sender = null, DateTime startDateTime = default(DateTime),
+		public async Task<SendResult> SendAsync(string recipients, string message, string sender = null,
+			DateTime startDateTime = default(DateTime),
 			bool testMode = false)
 		{
 			var url = ApiUrl
@@ -218,14 +216,15 @@ namespace MainSMS
 		}
 
 		/// <summary>
-		/// Sends the message asynchronous.
+		///     Sends the message asynchronous.
 		/// </summary>
 		/// <param name="recipients">The recipients phones.</param>
 		/// <param name="message">The message in UTF8.</param>
 		/// <param name="sender">The sender name from 5 to 11 chars, latin and numeric only.</param>
 		/// <param name="startDateTime">Send message at this time in your time zone.</param>
 		/// <param name="testMode">If set to <c>true</c> [test mode].</param>
-		public async Task<SendResult> SendAsync(IEnumerable<string> recipients, string message, string sender = null, DateTime startDateTime = default(DateTime),
+		public async Task<SendResult> SendAsync(IEnumerable<string> recipients, string message, string sender = null,
+			DateTime startDateTime = default(DateTime),
 			bool testMode = false)
 		{
 			var recipientsSemi = string.Join(",", recipients.ToArray());
@@ -273,15 +272,15 @@ namespace MainSMS
 		}
 
 		/// <summary>
-		/// Prepares the URL.
+		///     Prepares the URL.
 		/// </summary>
 		/// <param name="url">The URL.</param>
 		private Url PrepareUrl(Url url)
 		{
 			// Sort query params collection by the values
 			var queryParamsValuesArray = (from p in url.QueryParams
-										  orderby p.Value
-										  select (string)p.Value).ToArray();
+				orderby p.Value
+				select (string) p.Value).ToArray();
 
 			// Make "params;params" string
 			var queryParamsString = string.Join(";", queryParamsValuesArray);
@@ -294,7 +293,7 @@ namespace MainSMS
 		}
 
 		/// <summary>
-		/// Gets the hash.
+		///     Gets the hash.
 		/// </summary>
 		/// <param name="hashString">The hash string.</param>
 		/// <param name="text">The text.</param>
@@ -305,7 +304,7 @@ namespace MainSMS
 		}
 
 		/// <summary>
-		/// Encodes the specified message.
+		///     Encodes the specified message.
 		/// </summary>
 		/// <param name="message">The message.</param>
 		private static string Encode(string message)

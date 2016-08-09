@@ -1,39 +1,39 @@
 ﻿namespace MainSMS
 {
 	/// <summary>
-	/// Information about one phone number.
+	///     Information about one phone number.
 	/// </summary>
 	public class PhoneInfo
 	{
 		/// <summary>
-		/// Gets the phone.
+		///     Gets the phone.
 		/// </summary>
 		/// <value>
-		/// The phone.
+		///     The phone.
 		/// </value>
 		public string Phone { get; internal set; }
 
 		/// <summary>
-		/// Gets the code.
+		///     Gets the code.
 		/// </summary>
 		/// <value>
-		/// The code.
+		///     The code.
 		/// </value>
 		public string Code { get; internal set; }
 
 		/// <summary>
-		/// Gets the region.
+		///     Gets the region.
 		/// </summary>
 		/// <value>
-		/// The region.
+		///     The region.
 		/// </value>
 		public string Region { get; internal set; }
 
 		/// <summary>
-		/// Gets the name of the operator.
+		///     Gets the name of the operator.
 		/// </summary>
 		/// <value>
-		/// The name of the operator.
+		///     The name of the operator.
 		/// </value>
 		public string OperatorName { get; internal set; }
 	}
