@@ -80,5 +80,28 @@ namespace MainSms.Test
 			Assert.Null(price.ErrorMessage);
 			Assert.Equal("success", price.Status);
 		}
+
+		[Fact]
+		public async void SendAsync()
+		{
+			_client.TestUrl = "http://www.mocky.io/v2/57aa5d201200003501739c99";
+			
+			var result = await _client.SendAsync(
+				recipients: new List<string> { "70000000000", "70000000001" },
+				message: "test",
+				testMode: true);
+
+			Assert.NotNull(result);
+			Assert.NotEmpty(result.Recipients);
+			Assert.NotEmpty(result.MessageIds);
+			Assert.NotNull(result.Balance);
+			Assert.NotNull(result.MessageCount);
+			Assert.NotNull(result.PartsCount);
+			Assert.NotNull(result.Price);
+			Assert.Null(result.ErrorCode);
+			Assert.Null(result.ErrorMessage);
+			Assert.Equal(true, result.TestMode);
+			Assert.Equal("success", result.Status);
+		}
 	}
 }

@@ -38,10 +38,21 @@
   },
 
   "frameworks": {
-    "net45": {},
+    "net45": {
+      "buildOptions": {
+        "define": [ "NET45" ]
+      },
+      "frameworkAssemblies": {
+        "System.Web": "4.0.0.0"
+      }
+    },
     "netstandard1.6": {
+      "buildOptions": {
+        "define": [ "NETSTD" ]
+      },
       "dependencies": {
-        "System.Security.Cryptography.Algorithms": "4.2.0"
+        "System.Security.Cryptography.Algorithms": "4.2.0",
+        "System.Text.Encodings.Web": "4.0.0"
       }
     }
   }

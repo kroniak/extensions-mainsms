@@ -3,7 +3,7 @@
 namespace MainSMS
 {
 	/// <summary>
-	/// Reponse with balance of account.
+	/// Response with balance of account.
 	/// </summary>
 	/// <seealso cref="BaseResponse" />
 	public class BalanceInfo : BaseResponse
@@ -25,16 +25,7 @@ namespace MainSMS
 			if (!ErrorsHandler())
 				return;
 
-			double balance;
-			if (MainSmsClient.TryGetDouble(Response, "balance", out balance))
-			{
-				Balance = balance;
-			}
-			else
-			{
-				ErrorMessage = "Cannot convert values from string to double";
-				Status = "error";
-			}
+			Balance = ExtractDouble("balance");
 		}
 	}
 }

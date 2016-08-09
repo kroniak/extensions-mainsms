@@ -1,4 +1,7 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Globalization;
+using System.Linq;
 using System.Xml.Linq;
 
 namespace MainSMS
@@ -25,7 +28,7 @@ namespace MainSMS
 		public string ErrorMessage { get; protected set; }
 
 		/// <summary>
-		/// Gets the status.
+		/// Gets the status of the request.
 		/// </summary>
 		/// <value>
 		/// The status.
@@ -43,8 +46,9 @@ namespace MainSMS
 		/// <param name="response">The response.</param>
 		protected BaseResponse(XContainer response)
 		{
-			if (response == null) throw new ArgumentNullException(nameof(response));
-			
+			if (response == null)
+				throw new ArgumentNullException(nameof(response));
+
 			Response = response.Element("result");
 		}
 
@@ -63,6 +67,95 @@ namespace MainSMS
 			ErrorCode = Response?.Element("error")?.Value;
 			ErrorMessage = Response?.Element("message")?.Value;
 			return false;
+		}
+
+		/// <summary>
+		/// Extracts the strings from XML array.
+		/// </summary>
+		/// <param name="key">The key.</param>
+		protected IList<string> ExtractStringsFromArray(string key)
+		{
+			var xElements = Response.Element(key)?.Elements();
+
+			if (xElements != null)
+				return xElements.Select(rec => rec.Value).ToList();
+
+			Status = "error";
+			ErrorMessage = $"List {key} is empty";
+			return null;
+		}
+
+		/// <summary>
+		/// Extracts the ints from XML array.
+		/// </summary>
+		/// <param name="key">The key.</param>
+		protected IList<int> ExtractIntsFromArray(string key)
+		{
+			var xElements = Response.Element(key)?.Elements();
+
+			if (xElements != null)
+				return xElements.Select(rec => int.Parse(rec.Value)).ToList();
+
+			Status = "error";
+			ErrorMessage = $"List {key} is empty";
+			return null;
+		}
+
+		/// <summary>
+		/// Extract the double from value.
+		/// </summary>
+		/// <param name="key">The key.</param>
+		protected double ExtractDouble(string key)
+		{
+			var element = Response.Element(key);
+
+			try
+			{
+				double result;
+
+				//Try parsing in the current culture
+				if (double.TryParse(element?.Value, NumberStyles.Any, CultureInfo.CurrentCulture, out result) ||
+					double.TryParse(element?.Value, NumberStyles.Any, new CultureInfo("en-US"),
+						out result) ||
+					double.TryParse(element?.Value, NumberStyles.Any, CultureInfo.InvariantCulture, out result))
+
+					return result;
+
+				ErrorMessage = $"Cannot convert value {key} from string";
+				Status = "error";
+				return 0;
+			}
+			catch (FormatException)
+			{
+				ErrorMessage = $"Cannot convert value {key} from string";
+				Status = "error";
+				return 0;
+			}
+		}
+
+		/// <summary>
+		/// Extracts the int from value.
+		/// </summary>
+		/// <param name="key">The key.</param>
+		protected int ExtractInt(string key)
+		{
+			var count = Response.Element(key);
+
+			try
+			{
+				if (count?.Attribute("type")?.Value == "integer")
+					return int.Parse(count.Value);
+
+				ErrorMessage = $"Cannot convert value {key} from string";
+				Status = "error";
+				return 0;
+			}
+			catch (FormatException)
+			{
+				ErrorMessage = $"Cannot convert value {key} from string";
+				Status = "error";
+				return 0;
+			}
 		}
 	}
 }

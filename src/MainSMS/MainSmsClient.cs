@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Globalization;
 using System.Linq;
 using System.Security.Cryptography;
 using System.Text;
@@ -9,6 +8,12 @@ using System.Xml.Linq;
 using Flurl;
 using Flurl.Http;
 using Flurl.Http.Xml;
+
+#if NETSTD
+using System.Text.Encodings.Web;	
+#elif NET45
+using System.Web;
+#endif
 
 namespace MainSMS
 {
@@ -136,7 +141,7 @@ namespace MainSMS
 			var url = ApiUrl
 				.AppendPathSegment("price")
 				.SetQueryParam("recipients", recipients)
-				.SetQueryParam("message", message);
+				.SetQueryParam("message", Encode(message));
 
 			var responce = await GetXDocumentAsync(url);
 
@@ -155,6 +160,46 @@ namespace MainSMS
 			return await GetPriceAsync(recipientsSemi, message);
 		}
 
+		/// <summary>
+		/// Sends the message asynchronous.
+		/// </summary>
+		/// <param name="recipients">The recipients phones.</param>
+		/// <param name="message">The message in UTF8.</param>
+		/// <param name="sender">The sender name from 5 to 11 chars, latin and numeric only.</param>
+		/// <param name="startDateTime">Send message at this time in your time zone.</param>
+		/// <param name="testMode">If set to <c>true</c> [test mode].</param>
+		public async Task<SendResult> SendAsync(string recipients, string message, string sender = null, DateTime startDateTime = default(DateTime),
+			bool testMode = false)
+		{
+			var url = ApiUrl
+				.AppendPathSegment("send")
+				.SetQueryParam("recipients", recipients)
+				.SetQueryParam("message", Encode(message))
+				.SetQueryParam("sender", sender)
+				.SetQueryParam("run_at", startDateTime > DateTime.Now ? startDateTime.ToString("d.M.yyyy H:m") : null)
+				.SetQueryParam("test", testMode ? "1" : "0");
+
+			var responce = await GetXDocumentAsync(url);
+
+			return new SendResult(responce);
+		}
+
+		/// <summary>
+		/// Sends the message asynchronous.
+		/// </summary>
+		/// <param name="recipients">The recipients phones.</param>
+		/// <param name="message">The message in UTF8.</param>
+		/// <param name="sender">The sender name from 5 to 11 chars, latin and numeric only.</param>
+		/// <param name="startDateTime">Send message at this time in your time zone.</param>
+		/// <param name="testMode">If set to <c>true</c> [test mode].</param>
+		public async Task<SendResult> SendAsync(IEnumerable<string> recipients, string message, string sender = null, DateTime startDateTime = default(DateTime),
+			bool testMode = false)
+		{
+			var recipientsSemi = string.Join(",", recipients.ToArray());
+
+			return await SendAsync(recipientsSemi, message, sender, startDateTime, testMode);
+		}
+
 		private async Task<XDocument> GetXDocumentAsync(Url url)
 		{
 			XDocument response;
@@ -168,7 +213,8 @@ namespace MainSMS
 
 			try
 			{
-				response = await PrepareUrl(url)
+				var preparedUrl = PrepareUrl(url);
+				response = await preparedUrl
 					.GetXDocumentAsync();
 			}
 			catch (FlurlHttpException ex)
@@ -218,36 +264,16 @@ namespace MainSMS
 		}
 
 		/// <summary>
-		/// Gets the double.
+		/// Encodes the specified message.
 		/// </summary>
-		/// <param name="from">From.</param>
-		/// <param name="key">The key.</param>
-		/// <param name="result">The result.</param>
-		internal static bool TryGetDouble(XContainer from, string key, out double result)
+		/// <param name="message">The message.</param>
+		private static string Encode(string message)
 		{
-			result = 0;
-
-			var element = from.Element(key);
-			try
-			{
-				if (element?.Value == null)
-					return false;
-
-				//Try parsing in the current culture
-				if (double.TryParse(element.Value, NumberStyles.Any, CultureInfo.CurrentCulture, out result) ||
-					double.TryParse(element.Value, NumberStyles.Any, new CultureInfo("en-US"),
-						out result) ||
-					double.TryParse(element.Value, NumberStyles.Any, CultureInfo.InvariantCulture, out result))
-
-					return true;
-
-				result = 0;
-				return false;
-			}
-			catch (FormatException)
-			{
-				return false;
-			}
+#if NETSTD
+			return UrlEncoder.Default.Encode(message);
+#elif NET45
+			return HttpUtility.UrlEncode(message);
+#endif
 		}
 	}
 }

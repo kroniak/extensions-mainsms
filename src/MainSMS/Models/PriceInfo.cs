@@ -4,7 +4,7 @@ using System.Xml.Linq;
 namespace MainSMS
 {
 	/// <summary>
-	/// Reponse with balance of account.
+	/// Response with message price information.
 	/// </summary>
 	/// <seealso cref="BaseResponse" />
 	public class PriceInfo : BaseResponse
@@ -23,7 +23,7 @@ namespace MainSMS
 		/// <value>
 		/// The recipients.
 		/// </value>
-		public List<string> Recipients { get; }
+		public IList<string> Recipients { get; }
 
 		/// <summary>
 		/// Gets the message count.
@@ -50,7 +50,7 @@ namespace MainSMS
 		public double Price { get; private set; }
 
 		/// <summary>
-		/// Initializes a new instance of the <see cref="Balance"/> class.
+		/// Initializes a new instance of the <see cref="PriceInfo"/> class.
 		/// </summary>
 		/// <param name="response">The response.</param>
 		public PriceInfo(XContainer response) : base(response)
@@ -58,64 +58,11 @@ namespace MainSMS
 			if (!ErrorsHandler())
 				return;
 
-			double temporary;
-			if (MainSmsClient.TryGetDouble(Response, "balance", out temporary))
-			{
-				Balance = temporary;
-			}
-			else
-			{
-				ErrorMessage = "Cannot convert values from string";
-				Status = "error";
-				return;
-			}
-
-			if (MainSmsClient.TryGetDouble(Response, "price", out temporary))
-			{
-				Price = temporary;
-			}
-			else
-			{
-				ErrorMessage = "Cannot convert values from string";
-				Status = "error";
-				return;
-			}
-
-			var count = Response.Element("count");
-			if (count?.Attribute("type")?.Value == "integer")
-				MessageCount = int.Parse(count.Value);
-			else
-			{
-				ErrorMessage = "Cannot convert values from string";
-				Status = "error";
-				return;
-			}
-
-			var parts = Response.Element("parts");
-			if (parts?.Attribute("type")?.Value == "integer")
-				PartsCount = int.Parse(parts.Value);
-			else
-			{
-				ErrorMessage = "Cannot convert values from string";
-				Status = "error";
-				return;
-			}
-
-			Recipients = new List<string>();
-
-			var xElements = Response.Element("recipients")?.Elements();
-
-			if (xElements == null)
-			{
-				Status = "error";
-				ErrorMessage = "Phone list is empty";
-				return;
-			}
-
-			foreach (var rec in xElements)
-			{
-				Recipients.Add(rec.Value);
-			}
+			Balance = ExtractDouble("balance");
+			Price = ExtractDouble("price");
+			MessageCount = ExtractInt("count");
+			PartsCount = ExtractInt("parts");
+			Recipients = ExtractStringsFromArray("recipients");
 		}
 	}
 }
