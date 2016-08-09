@@ -18,6 +18,7 @@ namespace MainSms.Test
 			Assert.NotNull(balance);
 			Assert.NotNull(balance.ErrorCode);
 			Assert.NotNull(balance.ErrorMessage);
+			Assert.NotNull(balance.Url);
 			Assert.Equal(0, balance.Balance);
 			Assert.Equal("error", balance.Status);
 		}
@@ -32,6 +33,7 @@ namespace MainSms.Test
 			Assert.NotNull(balance);
 			Assert.Null(balance.ErrorCode);
 			Assert.Null(balance.ErrorMessage);
+			Assert.NotNull(balance.Url);
 			Assert.NotNull(balance.Balance);
 			Assert.Equal("success", balance.Status);
 		}
@@ -46,6 +48,7 @@ namespace MainSms.Test
 			Assert.NotNull(balance);
 			Assert.Null(balance.ErrorCode);
 			Assert.NotNull(balance.ErrorMessage);
+			Assert.NotNull(balance.Url);
 			Assert.Equal(0, balance.Balance);
 			Assert.Equal("error", balance.Status);
 		}
@@ -60,7 +63,22 @@ namespace MainSms.Test
 			Assert.NotEmpty(infos.Phones);
 			Assert.Null(infos.ErrorCode);
 			Assert.Null(infos.ErrorMessage);
+			Assert.NotNull(infos.Url);
 			Assert.Equal("success", infos.Status);
+		}
+
+		[Fact]
+		public async void GetStatusesAsync()
+		{
+			_client.TestUrl = "http://www.mocky.io/v2/57aa67ec1200008402739c9e";
+
+			var info = await _client.GetStatusesAsync(new List<int> { 91911719 });
+
+			Assert.NotNull(info);
+			Assert.NotEmpty(info.Statuses);
+			Assert.Null(info.ErrorCode);
+			Assert.Null(info.ErrorMessage);
+			Assert.Equal("success", info.Status);
 		}
 
 		[Fact]
@@ -85,7 +103,7 @@ namespace MainSms.Test
 		public async void SendAsync()
 		{
 			_client.TestUrl = "http://www.mocky.io/v2/57aa5d201200003501739c99";
-			
+
 			var result = await _client.SendAsync(
 				recipients: new List<string> { "70000000000", "70000000001" },
 				message: "test",

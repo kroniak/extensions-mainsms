@@ -41,6 +41,14 @@ namespace MainSMS
 		protected readonly XContainer Response;
 
 		/// <summary>
+		/// Gets the URL.
+		/// </summary>
+		/// <value>
+		/// The URL.
+		/// </value>
+		public string Url { get; private set; }
+
+		/// <summary>
 		/// Initializes a new instance of the <see cref="BaseResponse"/> class.
 		/// </summary>
 		/// <param name="response">The response.</param>
@@ -50,6 +58,7 @@ namespace MainSMS
 				throw new ArgumentNullException(nameof(response));
 
 			Response = response.Element("result");
+			Url = Response?.Element("url")?.Value;
 		}
 
 		/// <summary>

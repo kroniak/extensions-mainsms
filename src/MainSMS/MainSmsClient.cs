@@ -106,6 +106,39 @@ namespace MainSMS
 		}
 
 		/// <summary>
+		/// Gets the statuses asynchronous.
+		/// </summary>
+		/// <param name="messagesIds">The messages ids separeted by semicolons.</param>
+		public async Task<MessagesInfo> GetStatusesAsync(string messagesIds)
+		{
+			var url = ApiUrl
+				.AppendPathSegment("status")
+				.SetQueryParam("messages_id", messagesIds);
+
+			var responce = await GetXDocumentAsync(url);
+
+			return new MessagesInfo(responce);
+		}
+
+		/// <summary>
+		/// Gets the statuses asynchronous.
+		/// </summary>
+		/// <param name="messageId">The message id.</param>
+		public async Task<MessagesInfo> GetStatusAsync(int messageId)
+			=> await GetStatusesAsync(messageId.ToString());
+
+		/// <summary>
+		/// Gets the statuses asynchronous.
+		/// </summary>
+		/// <param name="messagesIds">The messages ids.</param>
+		public async Task<MessagesInfo> GetStatusesAsync(IEnumerable<int> messagesIds)
+		{
+			var messagesIdsSemi = string.Join(",", messagesIds.ToArray());
+
+			return await GetStatusesAsync(messagesIdsSemi);
+		}
+
+		/// <summary>
 		/// Gets the phones information asynchronous.
 		/// </summary>
 		/// <param name="phones">The phones separeted by semicolons.</param>
@@ -214,8 +247,16 @@ namespace MainSMS
 			try
 			{
 				var preparedUrl = PrepareUrl(url);
+
+				//Add prepared url to response to bug tests.
+				errorResponse.Element("result")?.Add(new XElement("url", preparedUrl));
+
+				// Do HTTP request 
 				response = await preparedUrl
 					.GetXDocumentAsync();
+
+				//Add prepared url to response to bug tests.
+				response.Element("result")?.Add(new XElement("url", preparedUrl));
 			}
 			catch (FlurlHttpException ex)
 			{
