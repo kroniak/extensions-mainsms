@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using Flurl;
 using MainSMS;
 using Xunit;
 
@@ -134,6 +135,24 @@ namespace MainSms.Test
 			Assert.Null(result.ErrorMessage);
 			Assert.Equal(true, result.TestMode);
 			Assert.Equal("success", result.Status);
+		}
+
+		[Fact]
+		public void TestArrayToQuery()
+		{
+			const string apiUrl = "https://mainsms.ru/api/mainsms/batch/";
+
+			var dictionary = new Dictionary<string, string>(0);
+			dictionary.Add("79101234567","test_message1");
+			dictionary.Add("79201234567","test_message2");
+			dictionary.Add("79301234567","test_message3");
+			dictionary.Add("79401234567","test_message4");
+
+			apiUrl
+				.AppendPathSegment("send")
+				.SetQueryParam("messages", dictionary);
+
+			Assert.True(true);
 		}
 	}
 }
