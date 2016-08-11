@@ -103,6 +103,39 @@ namespace MainSMS
 		}
 
 		/// <summary>
+		///     Cancel the delayed messages asynchronous.
+		/// </summary>
+		/// <param name="messagesIds">The messages ids separeted by semicolons.</param>
+		public async Task<CancelResult> CancelAsync(string messagesIds)
+		{
+			var url = ApiUrl
+				.AppendPathSegment("cancel")
+				.SetQueryParam("messages_id", messagesIds);
+
+			var responce = await GetXDocumentAsync(url);
+
+			return new CancelResult(responce);
+		}
+
+		/// <summary>
+		///     Cancel the delayed message asynchronous.
+		/// </summary>
+		/// <param name="messageId">The message id.</param>
+		public async Task<CancelResult> CancelAsync(int messageId)
+			=> await CancelAsync(messageId.ToString());
+
+		/// <summary>
+		///     Cancel the delayed messages asynchronous.
+		/// </summary>
+		/// <param name="messagesIds">The messages ids.</param>
+		public async Task<CancelResult> CancelAsync(IEnumerable<int> messagesIds)
+		{
+			var messagesIdsSemi = string.Join(",", messagesIds.ToArray());
+
+			return await CancelAsync(messagesIdsSemi);
+		}
+
+		/// <summary>
 		///     Gets the statuses asynchronous.
 		/// </summary>
 		/// <param name="messagesIds">The messages ids separeted by semicolons.</param>

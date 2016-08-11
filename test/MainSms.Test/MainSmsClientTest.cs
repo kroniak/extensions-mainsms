@@ -9,6 +9,20 @@ namespace MainSms.Test
 		private readonly MainSmsClient _client = new MainSmsClient("test", "test").GetTestClient();
 
 		[Fact]
+		public async void CancelAsync()
+		{
+			_client.TestUrl = "http://www.mocky.io/v2/57aa67ec1200008402739c9e";
+
+			var info = await _client.CancelAsync(new List<int> {91911719});
+
+			Assert.NotNull(info);
+			Assert.NotEmpty(info.Statuses);
+			Assert.Null(info.ErrorCode);
+			Assert.Null(info.ErrorMessage);
+			Assert.Equal("success", info.Status);
+		}
+
+		[Fact]
 		public async void GetBalance()
 		{
 			_client.TestUrl = "http://www.mocky.io/v2/57a8793d110000b7161d453a";
