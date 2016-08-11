@@ -1,7 +1,10 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 using Flurl;
 using MainSMS;
 using Xunit;
+// ReSharper disable All
 
 namespace MainSms.Test
 {
@@ -142,17 +145,73 @@ namespace MainSms.Test
 		{
 			const string apiUrl = "https://mainsms.ru/api/mainsms/batch/";
 
-			var dictionary = new Dictionary<string, string>(0);
-			dictionary.Add("79101234567","test_message1");
-			dictionary.Add("79201234567","test_message2");
-			dictionary.Add("79301234567","test_message3");
-			dictionary.Add("79401234567","test_message4");
+			var list = new List<Row>
+			{
+				new Row {Id = 1, Phone = "79101234567", Message = "test_message1"},
+				new Row {Id = 1, Phone = "79201234567", Message = "test_message2"}
+			};
 
 			apiUrl
 				.AppendPathSegment("send")
-				.SetQueryParam("messages", dictionary);
+				.SetQueryParam("messages", list);
 
 			Assert.True(true);
+		}
+
+		private struct Row
+		{
+			public int Id;
+			public string Phone;
+			public string Message;
+		}
+
+		public async void ToReadme()
+		{
+			// Create client
+			var client = new MainSmsClient("you project name", "your api key"); 
+
+			// Getting your project balance
+			var balanse = await client.GetBalanceAsync(); 
+
+			Console.WriteLine(balanse.Status == "success" ? $"balance is {balanse.Balance}" : $"Error is {balanse.ErrorMessage}");
+
+			// Getting send price information and right format phone numbers
+			var price = await client.GetPriceAsync("79214445566", "test messages"); 
+
+			Console.WriteLine(price.Status == "success" ? $"Price is {price.Price}. Total messages count is {price.MessageCount}" : $"Error is {price.ErrorMessage}");
+
+			// Sending messages
+			var sendResult = await client.SendAsync("79214445566,+89214445566", "test messages");
+
+			Console.WriteLine(sendResult.Status == "success" ? $"Price is {sendResult.Price}. Total messages count is {sendResult.MessageCount}" : $"Error is {sendResult.ErrorMessage}");
+
+			if (sendResult.MessageIds.Count > 0)
+				sendResult.MessageIds.ToList().ForEach(id => Console.WriteLine($"Message id is {id}")); //print receaved messages ids.
+
+			// If you want only test without real sending the messages pass testMode param, MessageIds will be empty
+			var testSendResult = await client.SendAsync("79214445566,+89214445566", "test messages", testMode: true);
+
+			// Getting delivery statuses of messages
+			var statuses = await client.GetStatusesAsync(sendResult.MessageIds);
+
+			if (statuses.Status=="success") // print messages statuses
+				if (statuses.Statuses.Any())
+					foreach (var status in statuses.Statuses)
+						Console.WriteLine($"The status of the message {status.Key} is {status.Value}");
+			else Console.WriteLine($"Error is {statuses.ErrorMessage}");
+
+			// Send a delayed message
+			var delayedSendResult = await client.SendAsync("79214445566,+89214445566", "test messages", startDateTime: new DateTime(2016,08,12));
+
+			// Try to cancel this messages
+			if (delayedSendResult.Status == "success" && delayedSendResult.MessageIds.Any())
+			{
+				var cancelResult = await client.CancelAsync(delayedSendResult.MessageIds);
+				if (cancelResult.Status == "success") // print messages statuses
+					if (cancelResult.Statuses.Any())
+						foreach (var status in cancelResult.Statuses)
+							Console.WriteLine($"The status of the message {status.Key} is {status.Value}");
+			}
 		}
 	}
 }
