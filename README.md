@@ -19,23 +19,30 @@ var client = new MainSmsClient("you project name", "your api key");
 // Getting your project balance
 var balanse = await client.GetBalanceAsync();
 
-Console.WriteLine(balanse.Status == "success" ? $"balance is {balanse.Balance}" : $"Error is {balanse.ErrorMessage}");
+Console.WriteLine(balanse.Status == "success" ? $"balance is {balanse.Balance}" 
+	: $"Error is {balanse.ErrorMessage}");
 
 // Getting send price information and right format phone numbers
 var price = await client.GetPriceAsync("79214445566", "test messages");
 
-Console.WriteLine(price.Status == "success" ? $"Price is {price.Price}. Total messages count is {price.MessageCount}" : $"Error is {price.ErrorMessage}");
+Console.WriteLine(price.Status == "success" ? 
+	$"Price is {price.Price}. Total messages count is {price.MessageCount}" 
+	: $"Error is {price.ErrorMessage}");
 
 // Sending messages
 var sendResult = await client.SendAsync("79214445566,+89214445566", "test messages");
 
-Console.WriteLine(sendResult.Status == "success" ? $"Price is {sendResult.Price}. Total messages count is {sendResult.MessageCount}" : $"Error is {sendResult.ErrorMessage}");
+Console.WriteLine(sendResult.Status == "success" ? 
+	$"Price is {sendResult.Price}. Total messages count is {sendResult.MessageCount}" 
+	: $"Error is {sendResult.ErrorMessage}");
 
-if (sendResult.MessageIds.Count > 0)
-	sendResult.MessageIds.ToList().ForEach(id => Console.WriteLine($"Message id is {id}")); //print receaved messages ids.
+if (sendResult.MessageIds.Count > 0) //print receaved messages ids.
+	sendResult.MessageIds.ToList().ForEach(id => Console.WriteLine($"Message id is {id}")); 
 
-// If you want only test without real sending the messages pass testMode param, MessageIds will be empty
-var testSendResult = await client.SendAsync("79214445566,+89214445566", "test messages", testMode: true);
+// If you want only test without real sending the messages 
+// pass testMode param, MessageIds will be empty
+var testSendResult = await client.SendAsync("79214445566,+89214445566", 
+	"test messages", testMode: true);
 
 // Getting delivery statuses of messages
 var statuses = await client.GetStatusesAsync(sendResult.MessageIds);
@@ -43,11 +50,13 @@ var statuses = await client.GetStatusesAsync(sendResult.MessageIds);
 if (statuses.Status=="success") // print messages statuses
 	if (statuses.Statuses.Any())
 		foreach (var status in statuses.Statuses)
-			Console.WriteLine($"The status of the message {status.Key} is {status.Value}");
+			Console.WriteLine(
+				$"The status of the message {status.Key} is {status.Value}");
 else Console.WriteLine($"Error is {statuses.ErrorMessage}");
 
 // Send a delayed message
-var delayedSendResult = await client.SendAsync("79214445566,+89214445566", "test messages", startDateTime: new DateTime(2016,08,12));
+var delayedSendResult = await client.SendAsync("79214445566,+89214445566", 
+			"test messages", startDateTime: new DateTime(2016,08,12));
 
 // Try to cancel this messages
 if (delayedSendResult.Status == "success" && delayedSendResult.MessageIds.Any())
