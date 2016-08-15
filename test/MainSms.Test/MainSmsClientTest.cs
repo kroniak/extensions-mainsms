@@ -185,7 +185,7 @@ namespace MainSms.Test
 
 			Console.WriteLine(sendResult.Status == "success" ? $"Price is {sendResult.Price}. Total messages count is {sendResult.MessageCount}" : $"Error is {sendResult.ErrorMessage}");
 
-			if (sendResult.MessageIds.Count > 0)
+			if (sendResult.MessageIds.Any())
 				sendResult.MessageIds.ToList().ForEach(id => Console.WriteLine($"Message id is {id}")); //print receaved messages ids.
 
 			// If you want only test without real sending the messages pass testMode param, MessageIds will be empty

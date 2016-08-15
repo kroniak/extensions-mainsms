@@ -39,7 +39,7 @@ namespace MainSMS
 		/// <value>
 		///     The recipients.
 		/// </value>
-		public IList<string> Recipients { get; }
+		public IEnumerable<string> Recipients { get; }
 
 		/// <summary>
 		///     Gets the message count.

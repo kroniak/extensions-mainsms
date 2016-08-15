@@ -36,7 +36,7 @@ Console.WriteLine(sendResult.Status == "success" ?
 	$"Price is {sendResult.Price}. Total messages count is {sendResult.MessageCount}" 
 	: $"Error is {sendResult.ErrorMessage}");
 
-if (sendResult.MessageIds.Count > 0) //print receaved message ids.
+if (sendResult.MessageIds.Any()) //print receaved message ids.
 	sendResult.MessageIds.ToList().ForEach(id => Console.WriteLine($"Message id is {id}")); 
 
 // If you want only test without real sending the messages 

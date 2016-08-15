@@ -28,7 +28,7 @@ namespace MainSMS
 		/// <value>
 		///     The message ids.
 		/// </value>
-		public IList<int> MessageIds { get; }
+		public IEnumerable<int> MessageIds { get; }
 
 		/// <summary>
 		///     Gets a value indicating whether [test mode].

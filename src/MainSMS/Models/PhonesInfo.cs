@@ -15,7 +15,8 @@ namespace MainSMS
 		/// <param name="response">The response.</param>
 		public PhonesInfo(XContainer response) : base(response)
 		{
-			if (!ErrorsHandler()) return;
+			if (!ErrorsHandler())
+				return;
 
 			Phones = new List<PhoneInfo>();
 			var xElements = Response.Element("info")?.Elements();
@@ -47,6 +48,6 @@ namespace MainSMS
 		/// <value>
 		///     The phones information.
 		/// </value>
-		public List<PhoneInfo> Phones { get; }
+		public ICollection<PhoneInfo> Phones { get; }
 	}
 }

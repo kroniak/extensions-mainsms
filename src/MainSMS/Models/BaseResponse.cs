@@ -82,12 +82,12 @@ namespace MainSMS
 		///     Extracts the strings from XML array.
 		/// </summary>
 		/// <param name="key">The key.</param>
-		protected IList<string> ExtractStringsFromArray(string key)
+		protected IEnumerable<string> ExtractStringsFromArray(string key)
 		{
 			var xElements = Response.Element(key)?.Elements();
 
 			if (xElements != null)
-				return xElements.Select(rec => rec.Value).ToList();
+				return xElements.Select(rec => rec.Value);
 
 			Status = "error";
 			ErrorMessage = $"List {key} is empty";
@@ -98,12 +98,12 @@ namespace MainSMS
 		///     Extracts the ints from XML array.
 		/// </summary>
 		/// <param name="key">The key.</param>
-		protected IList<int> ExtractIntsFromArray(string key)
+		protected IEnumerable<int> ExtractIntsFromArray(string key)
 		{
 			var xElements = Response.Element(key)?.Elements();
 
 			if (xElements != null)
-				return xElements.Select(rec => int.Parse(rec.Value)).ToList();
+				return xElements.Select(rec => int.Parse(rec.Value));
 
 			Status = "error";
 			ErrorMessage = $"List {key} is empty";
