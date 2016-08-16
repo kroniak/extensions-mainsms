@@ -4,6 +4,7 @@
   "description": "C# services for MainSMS.ru API",
 
   "packOptions": {
+    "iconUrl": "https://mainsms.ru/assets/main_logo-0dc68c20a04691885c52553127586c7a.png",
     "licenseUrl": "https://raw.githubusercontent.com/kroniak/extensions-mainsms/master/LICENSE",
     "projectUrl": "https://github.com/kroniak/extensions-mainsms",
     "releaseNotes": "https://github.com/kroniak/extensions-mainsms/releases",
@@ -17,7 +18,6 @@
   },
 
   "authors": [ "me@kroniak.net" ],
-  "copyright": "©2016 by me@kroniak.net",
   "license": "GPL-3.0",
 
   "buildOptions": {
