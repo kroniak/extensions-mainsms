@@ -1,6 +1,6 @@
 ﻿## C# client for MainSMS.ru API
-[![Build status](https://ci.appveyor.com/api/projects/status/laa9w0noj5yri76f/branch/master?svg=true)](https://ci.appveyor.com/project/kroniak/extensions-mainsms/branch/master)
-[![NuGet](https://img.shields.io/nuget/v/MainSMS.svg)](https://www.nuget.org/packages/MainSMS/)
+[![Build status](https://ci.appveyor.com/api/projects/status/laa9w0noj5yri76f/branch/master?svg=true&maxAge=600)](https://ci.appveyor.com/project/kroniak/extensions-mainsms/branch/master)
+[![NuGet](https://img.shields.io/nuget/v/MainSMS.svg?maxAge=86400)](https://www.nuget.org/packages/MainSMS/)
 > This repository contains models and service C# class for MainSMS XML API.
 
 [MainSMS.ru](http://MainSMS.ru) is a service to sending text message to the recipients from Russia and nearest countries.

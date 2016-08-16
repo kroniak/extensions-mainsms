@@ -17,7 +17,7 @@
   },
 
   "authors": [ "me@kroniak.net" ],
-  "copyright": "Copyright ©2016 by me@kroniak.net",
+  "copyright": "©2016 by me@kroniak.net",
   "license": "GPL-3.0",
 
   "buildOptions": {
