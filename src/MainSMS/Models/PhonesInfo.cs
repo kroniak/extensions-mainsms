@@ -1,17 +1,15 @@
-﻿using System.Collections.Generic;
+﻿// Licensed under the GPL License, Version 3.0. See LICENSE in the git repository root for license information.
+
+using System.Collections.Generic;
 using System.Xml.Linq;
 
 namespace MainSMS
 {
-	/// <summary>
-	///     Response with info of the phones.
-	/// </summary>
+	/// <summary>Response with info of the phones.</summary>
 	/// <seealso cref="BaseResponse" />
 	public class PhonesInfo : BaseResponse
 	{
-		/// <summary>
-		///     Initializes a new instance of the <see cref="PhonesInfo" /> class.
-		/// </summary>
+		/// <summary>Initializes a new instance of the <see cref="PhonesInfo" /> class.</summary>
 		/// <param name="response">The response.</param>
 		public PhonesInfo(XContainer response) : base(response)
 		{
@@ -42,12 +40,8 @@ namespace MainSMS
 			}
 		}
 
-		/// <summary>
-		///     Gets the phones information.
-		/// </summary>
-		/// <value>
-		///     The phones information.
-		/// </value>
+		/// <summary>Gets the phones information.</summary>
+		/// <value>The phones information.</value>
 		public ICollection<PhoneInfo> Phones { get; }
 	}
 }

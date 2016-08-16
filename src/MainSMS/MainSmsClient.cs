@@ -1,4 +1,6 @@
-﻿using System;
+﻿// Licensed under the GPL License, Version 3.0. See LICENSE in the git repository root for license information.
+
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Security.Cryptography;
@@ -8,8 +10,10 @@ using System.Xml.Linq;
 using Flurl;
 using Flurl.Http;
 using Flurl.Http.Xml;
+using Newtonsoft.Json.Linq;
 #if NETSTD
-using System.Text.Encodings.Web;	
+using System.Text.Encodings.Web;
+
 #elif NET45
 using System.Web;
 
@@ -17,9 +21,7 @@ using System.Web;
 
 namespace MainSMS
 {
-	/// <summary>
-	///     Main client class to MainSMS API.
-	/// </summary>
+	/// <summary>Main client class to MainSMS API.</summary>
 	public class MainSmsClient
 	{
 		// Default  type for response
@@ -29,17 +31,13 @@ namespace MainSMS
 
 		private string _apiUrl;
 
-		/// <summary>
-		///     Gets or sets a value indicating whether [test mode].
-		/// </summary>
+		/// <summary>Gets or sets a value indicating whether [test mode].</summary>
 		/// <value>
-		///     <c>true</c> if [test mode]; otherwise, <c>false</c>.
+		/// <c>true</c> if [test mode]; otherwise, <c>false</c>.
 		/// </value>
 		private bool _testMode;
 
-		/// <summary>
-		///     Initializes a new instance of the <see cref="MainSmsClient" /> class.
-		/// </summary>
+		/// <summary>Initializes a new instance of the <see cref="MainSmsClient" /> class.</summary>
 		/// <param name="project">The project.</param>
 		/// <param name="apiKey">The API key.</param>
 		public MainSmsClient(string project, string apiKey)
@@ -55,57 +53,19 @@ namespace MainSMS
 				.SetQueryParams(new {project, format = ResponseType});
 		}
 
-		// Defalut API URL
+		// Default API URL
 		private string ApiUrl
 		{
 			get { return _testMode ? TestUrl : _apiUrl; }
 			set { _apiUrl = value; }
 		}
 
-		/// <summary>
-		///     Gets or sets the test URL.
-		/// </summary>
-		/// <value>
-		///     The test URL.
-		/// </value>
+		/// <summary>Gets or sets the test URL.</summary>
+		/// <value>The test URL.</value>
 		public string TestUrl { private get; set; }
 
-		/// <summary>
-		///     Gets the test client.
-		/// </summary>
-		public MainSmsClient GetTestClient()
-		{
-			_testMode = true;
-			return this;
-		}
-
-		/// <summary>
-		///     Gets the test client.
-		/// </summary>
-		/// <param name="testUrl">The test URL.</param>
-		public MainSmsClient GetTestClient(string testUrl)
-		{
-			TestUrl = testUrl;
-			return GetTestClient();
-		}
-
-		/// <summary>
-		///     Gets the balance.
-		/// </summary>
-		public async Task<BalanceInfo> GetBalanceAsync()
-		{
-			var url = ApiUrl
-				.AppendPathSegment("balance");
-
-			var responce = await GetXDocumentAsync(url);
-
-			return new BalanceInfo(responce);
-		}
-
-		/// <summary>
-		///     Cancel the delayed messages asynchronous.
-		/// </summary>
-		/// <param name="messagesIds">The messages ids separeted by semicolons.</param>
+		/// <summary>Cancel the delayed messages asynchronous.</summary>
+		/// <param name="messagesIds">The messages ids separated by semicolons.</param>
 		public async Task<CancelResult> CancelAsync(string messagesIds)
 		{
 			var url = ApiUrl
@@ -117,16 +77,12 @@ namespace MainSMS
 			return new CancelResult(responce);
 		}
 
-		/// <summary>
-		///     Cancel the delayed message asynchronous.
-		/// </summary>
+		/// <summary>Cancel the delayed message asynchronous.</summary>
 		/// <param name="messageId">The message id.</param>
 		public async Task<CancelResult> CancelAsync(int messageId)
 			=> await CancelAsync(messageId.ToString());
 
-		/// <summary>
-		///     Cancel the delayed messages asynchronous.
-		/// </summary>
+		/// <summary>Cancel the delayed messages asynchronous.</summary>
 		/// <param name="messagesIds">The messages ids.</param>
 		public async Task<CancelResult> CancelAsync(IEnumerable<int> messagesIds)
 		{
@@ -135,43 +91,39 @@ namespace MainSMS
 			return await CancelAsync(messagesIdsSemi);
 		}
 
-		/// <summary>
-		///     Gets the statuses asynchronous.
-		/// </summary>
-		/// <param name="messagesIds">The messages ids separeted by semicolons.</param>
-		public async Task<MessagesInfo> GetStatusesAsync(string messagesIds)
+		/// <summary>Encodes the specified message.</summary>
+		/// <param name="message">The message.</param>
+		private static string Encode(string message)
+		{
+#if NETSTD
+			return UrlEncoder.Default.Encode(message);
+#elif NET45
+			return HttpUtility.UrlEncode(message);
+#endif
+		}
+
+		/// <summary>Gets the balance.</summary>
+		public async Task<BalanceInfo> GetBalanceAsync()
 		{
 			var url = ApiUrl
-				.AppendPathSegment("status")
-				.SetQueryParam("messages_id", messagesIds);
+				.AppendPathSegment("balance");
 
 			var responce = await GetXDocumentAsync(url);
 
-			return new MessagesInfo(responce);
+			return new BalanceInfo(responce);
 		}
 
-		/// <summary>
-		///     Gets the statuses asynchronous.
-		/// </summary>
-		/// <param name="messageId">The message id.</param>
-		public async Task<MessagesInfo> GetStatusAsync(int messageId)
-			=> await GetStatusesAsync(messageId.ToString());
-
-		/// <summary>
-		///     Gets the statuses asynchronous.
-		/// </summary>
-		/// <param name="messagesIds">The messages ids.</param>
-		public async Task<MessagesInfo> GetStatusesAsync(IEnumerable<int> messagesIds)
+		/// <summary>Gets the hash.</summary>
+		/// <param name="hashString">The hash string.</param>
+		/// <param name="text">The text.</param>
+		private static string GetHash(HashAlgorithm hashString, string text)
 		{
-			var messagesIdsSemi = string.Join(",", messagesIds.ToArray());
-
-			return await GetStatusesAsync(messagesIdsSemi);
+			var bytes = Encoding.UTF8.GetBytes(text);
+			return hashString.ComputeHash(bytes).Aggregate("", (current, num) => current + $"{num:x2}");
 		}
 
-		/// <summary>
-		///     Gets the phones information asynchronous.
-		/// </summary>
-		/// <param name="phones">The phones separeted by semicolons.</param>
+		/// <summary>Gets the phones information asynchronous.</summary>
+		/// <param name="phones">The phones separated by semicolons.</param>
 		public async Task<PhonesInfo> GetInfoAsync(string phones)
 		{
 			var url = ApiUrl
@@ -183,9 +135,7 @@ namespace MainSMS
 			return new PhonesInfo(responce);
 		}
 
-		/// <summary>
-		///     Gets the phones information asynchronous.
-		/// </summary>
+		/// <summary>Gets the phones information asynchronous.</summary>
 		/// <param name="phones">The phones.</param>
 		public async Task<PhonesInfo> GetInfoAsync(IEnumerable<string> phones)
 		{
@@ -194,9 +144,7 @@ namespace MainSMS
 			return await GetInfoAsync(phonesSemi);
 		}
 
-		/// <summary>
-		///     Gets the price asynchronous.
-		/// </summary>
+		/// <summary>Gets the price asynchronous.</summary>
 		/// <param name="recipients">The recipients phones.</param>
 		/// <param name="message">The message in UTF8.</param>
 		public async Task<PriceInfo> GetPriceAsync(string recipients, string message)
@@ -211,9 +159,7 @@ namespace MainSMS
 			return new PriceInfo(responce);
 		}
 
-		/// <summary>
-		///     Gets the price asynchronous.
-		/// </summary>
+		/// <summary>Gets the price asynchronous.</summary>
 		/// <param name="recipients">The recipients phones.</param>
 		/// <param name="message">The message in UTF8.</param>
 		public async Task<PriceInfo> GetPriceAsync(IEnumerable<string> recipients, string message)
@@ -223,9 +169,150 @@ namespace MainSMS
 			return await GetPriceAsync(recipientsSemi, message);
 		}
 
-		/// <summary>
-		///     Sends the message asynchronous.
-		/// </summary>
+		/// <summary>Gets the statuses asynchronous.</summary>
+		/// <param name="messageId">The message id.</param>
+		public async Task<MessagesInfo> GetStatusAsync(int messageId)
+			=> await GetStatusesAsync(messageId.ToString());
+
+		/// <summary>Gets the statuses asynchronous.</summary>
+		/// <param name="messagesIds">The messages ids separated by semicolons.</param>
+		public async Task<MessagesInfo> GetStatusesAsync(string messagesIds)
+		{
+			var url = ApiUrl
+				.AppendPathSegment("status")
+				.SetQueryParam("messages_id", messagesIds);
+
+			var responce = await GetXDocumentAsync(url);
+
+			return new MessagesInfo(responce);
+		}
+
+		/// <summary>Gets the statuses asynchronous.</summary>
+		/// <param name="messagesIds">The messages ids.</param>
+		public async Task<MessagesInfo> GetStatusesAsync(IEnumerable<int> messagesIds)
+		{
+			var messagesIdsSemi = string.Join(",", messagesIds.ToArray());
+
+			return await GetStatusesAsync(messagesIdsSemi);
+		}
+
+		/// <summary>Gets the test client.</summary>
+		public MainSmsClient GetTestClient()
+		{
+			_testMode = true;
+			return this;
+		}
+
+		/// <summary>Gets the test client.</summary>
+		/// <param name="testUrl">The test URL.</param>
+		public MainSmsClient GetTestClient(string testUrl)
+		{
+			TestUrl = testUrl;
+			return GetTestClient();
+		}
+
+		/// <summary>Gets the x document asynchronous.</summary>
+		/// <param name="url">The URL.</param>
+		/// <param name="prepareMethodCall">The prepare method call.</param>
+		/// <param name="queryParams">The query parameters.</param>
+		/// <param name="format">The format.</param>
+		private async Task<XDocument> GetXDocumentAsync(Url url, Action<Url> prepareMethodCall = null,
+			string queryParams = null, string format = "XML")
+		{
+			XDocument response;
+
+			var errorResponse = new XDocument(
+				new XElement("result",
+					new XElement("status", "error"),
+					new XElement("message", "")));
+
+			var errorMessage = errorResponse.Element("result")?.Element("message");
+
+			try
+			{
+				// add sign to url
+				if (prepareMethodCall == null)
+					prepareMethodCall = delegate { PrepareUrl(url); };
+
+				prepareMethodCall(url);
+
+				string resultUrl;
+				// add query params if needed
+				if (!string.IsNullOrEmpty(queryParams))
+					resultUrl = url + "&" + queryParams;
+				else
+					resultUrl = url;
+
+				// add prepared url to response to testing
+				errorResponse.Element("result")?.Add(new XElement("url", resultUrl));
+
+				// do HTTP request 
+				if (format == "JSON")
+				{
+					var jsonJObject = JObject.Parse(await resultUrl.GetStringAsync());
+					if ((string) jsonJObject["status"] == "success")
+						response = new XDocument(
+							new XElement("result",
+								new XElement("status", (string) jsonJObject["status"]),
+								new XElement("cost", (string) jsonJObject["cost"]),
+								new XElement("phones", (string) jsonJObject["phones"]),
+								new XElement("parts", (string) jsonJObject["parts"])));
+					else
+						response = new XDocument(
+							new XElement("result",
+								new XElement("status", "error"),
+								new XElement("message", (string) jsonJObject["errors"]["message"])));
+				}
+				else
+					response = await resultUrl.GetXDocumentAsync();
+
+				// add prepared url to response to testing
+				response.Element("result")?.Add(new XElement("url", resultUrl));
+			}
+			catch (FlurlHttpException ex)
+			{
+				errorMessage?.SetValue(ex.Message);
+				response = errorResponse;
+			}
+			catch (Exception ex)
+			{
+				errorMessage?.SetValue(ex.Message);
+				response = errorResponse;
+			}
+
+			return response;
+		}
+
+		/// <summary>Prepares the URL.</summary>
+		/// <param name="url">The URL.</param>
+		private void PrepareUrl(Url url)
+		{
+			// Sort query params collection by the values
+			var queryParamsValuesArray = (from p in url.QueryParams
+				orderby p.Name
+				select (string) p.Value).ToArray();
+
+			// Make "params;params" string
+			var queryParamsString = string.Join(";", queryParamsValuesArray);
+
+			// Generate sign hash
+			var hash = GetHash(MD5.Create(), GetHash(SHA1.Create(), $"{queryParamsString};{_apiKey}"));
+
+			// Add sign to url
+			url.SetQueryParam("sign", hash);
+		}
+
+		/// <summary>Prepares the URL.</summary>
+		/// <param name="url">The URL.</param>
+		private void PrepareUrlForBatch(Url url)
+		{
+			PrepareUrl(url);
+
+			// remove prepared string from real URL
+			url.RemoveQueryParam("messages");
+		}
+
+		/// <summary>Sends the message asynchronous.</summary>
 		/// <param name="recipients">The recipients phones.</param>
 		/// <param name="message">The message in UTF8.</param>
 		/// <param name="sender">The sender name from 5 to 11 chars, latin and numeric only.</param>
@@ -248,9 +335,7 @@ namespace MainSMS
 			return new SendResult(responce);
 		}
 
-		/// <summary>
-		///     Sends the message asynchronous.
-		/// </summary>
+		/// <summary>Sends the message asynchronous.</summary>
 		/// <param name="recipients">The recipients phones.</param>
 		/// <param name="message">The message in UTF8.</param>
 		/// <param name="sender">The sender name from 5 to 11 chars, latin and numeric only.</param>
@@ -265,88 +350,48 @@ namespace MainSMS
 			return await SendAsync(recipientsSemi, message, sender, startDateTime, testMode);
 		}
 
-		private async Task<XDocument> GetXDocumentAsync(Url url)
+		/// <summary>Sends the messages in the batch asynchronous.</summary>
+		/// <param name="messages">The recipients phones (key) and messages in UTF8 (value) Dictionary.</param>
+		/// <param name="sender">The sender name from 5 to 11 chars, latin and numeric only.</param>
+		/// <param name="testMode">If set to <c>true</c> [test mode].</param>
+		public async Task<SendBatchResult> SendBatchAsync(IDictionary<string, string> messages, string sender = null,
+			bool testMode = false)
 		{
-			XDocument response;
+			if (messages == null)
+				throw new ArgumentNullException(nameof(messages));
+			if (messages.Count == 0)
+				throw new ArgumentException(nameof(messages), $"{nameof(messages)} is empty.");
 
-			var errorResponse = new XDocument(
-				new XElement("result",
-					new XElement("status", "error"),
-					new XElement("message", "")));
-
-			var errorMessage = errorResponse.Element("result")?.Element("message");
-
-			try
+			// prepate messages param string
+			var messagesParam = "";
+			var messagesForHash = "";
+			var i = 0;
+			foreach (var message in messages)
 			{
-				var preparedUrl = PrepareUrl(url);
-
-				//Add prepared url to response to bug tests.
-				errorResponse.Element("result")?.Add(new XElement("url", preparedUrl));
-
-				// Do HTTP request 
-				response = await preparedUrl
-					.GetXDocumentAsync();
-
-				//Add prepared url to response to bug tests.
-				response.Element("result")?.Add(new XElement("url", preparedUrl));
-			}
-			catch (FlurlHttpException ex)
-			{
-				errorMessage?.SetValue(ex.Message);
-				response = errorResponse;
-			}
-			catch (Exception ex)
-			{
-				errorMessage?.SetValue(ex.Message);
-				response = errorResponse;
+				messagesParam = $"{messagesParam}messages[{i}][phone]={message.Key}&messages[{i}][text]={Encode(message.Value)}&";
+				messagesForHash = string.Join(",", messagesForHash, message.Key, message.Value);
+				i++;
 			}
 
-			return response;
-		}
+			// remove first [,] and last [&] char
+			messagesParam = messagesParam.Remove(messagesParam.Length - 1);
+			if (messagesForHash.StartsWith(","))
+				messagesForHash = messagesForHash.Substring(1);
 
-		/// <summary>
-		///     Prepares the URL.
-		/// </summary>
-		/// <param name="url">The URL.</param>
-		private Url PrepareUrl(Url url)
-		{
-			// Sort query params collection by the values
-			var queryParamsValuesArray = (from p in url.QueryParams
-				orderby p.Value
-				select (string) p.Value).ToArray();
+			var url = ApiUrl
+				.Replace("message", "batch")
+				.AppendPathSegment("send")
+				.SetQueryParam("messages", messagesForHash)
+				.SetQueryParam("sender", sender)
+				.SetQueryParam("test", testMode ? "1" : "0")
+				.RemoveQueryParam("format"); // this is bug in mainsms api.
 
-			// Make "params;params" string
-			var queryParamsString = string.Join(";", queryParamsValuesArray);
+			var responce = await GetXDocumentAsync(url,
+				PrepareUrlForBatch,
+				messagesParam,
+				"JSON"); // this is bug in mainsms api.
 
-			// Generate sign hash
-			var hash = GetHash(MD5.Create(), GetHash(SHA1.Create(), $"{queryParamsString};{_apiKey}"));
-
-			// Return prepared string with sign
-			return url.SetQueryParam("sign", hash);
-		}
-
-		/// <summary>
-		///     Gets the hash.
-		/// </summary>
-		/// <param name="hashString">The hash string.</param>
-		/// <param name="text">The text.</param>
-		private static string GetHash(HashAlgorithm hashString, string text)
-		{
-			var bytes = Encoding.UTF8.GetBytes(text);
-			return hashString.ComputeHash(bytes).Aggregate("", (current, num) => current + $"{num:x2}");
-		}
-
-		/// <summary>
-		///     Encodes the specified message.
-		/// </summary>
-		/// <param name="message">The message.</param>
-		private static string Encode(string message)
-		{
-#if NETSTD
-			return UrlEncoder.Default.Encode(message);
-#elif NET45
-			return HttpUtility.UrlEncode(message);
-#endif
+			return new SendBatchResult(responce);
 		}
 	}
 }

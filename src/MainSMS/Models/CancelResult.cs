@@ -1,17 +1,15 @@
-﻿using System.Collections.Generic;
+﻿// Licensed under the GPL License, Version 3.0. See LICENSE in the git repository root for license information.
+
+using System.Collections.Generic;
 using System.Xml.Linq;
 
 namespace MainSMS
 {
-	/// <summary>
-	///     Response with cancel messages result.
-	/// </summary>
+	/// <summary>Response with cancel messages result.</summary>
 	/// <seealso cref="BaseResponse" />
 	public class CancelResult : BaseResponse
 	{
-		/// <summary>
-		///     Initializes a new instance of the <see cref="CancelResult" /> class.
-		/// </summary>
+		/// <summary>Initializes a new instance of the <see cref="CancelResult" /> class.</summary>
 		/// <param name="response">The response.</param>
 		public CancelResult(XContainer response) : base(response)
 		{
@@ -33,12 +31,8 @@ namespace MainSMS
 					Statuses.Add(element.Name.LocalName.Replace("id", ""), element.Value);
 		}
 
-		/// <summary>
-		///     Gets the statuses of the messages.
-		/// </summary>
-		/// <value>
-		///     The statuses.
-		/// </value>
+		/// <summary>Gets the statuses of the messages.</summary>
+		/// <value>The statuses.</value>
 		public Dictionary<string, string> Statuses { get; }
 	}
 }

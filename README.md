@@ -12,7 +12,7 @@
 
 ### Usage
 
-```c#
+````c#
 // Create client
 var client = new MainSmsClient("you project name", "your api key");
 
@@ -38,6 +38,13 @@ Console.WriteLine(sendResult.Status == "success" ?
 
 if (sendResult.MessageIds.Any()) //print receaved message ids.
 	sendResult.MessageIds.ToList().ForEach(id => Console.WriteLine($"Message id is {id}")); 
+
+// Batch sending messages
+var messages = new Dictionary<string, string>();
+messages.Add("89214045559", "test message 1");
+messages.Add("89213020041", "test message 2");
+
+var result = await _client.SendBatchAsync(messages, sender: "sendertest");
 
 // If you want only test without real sending the messages 
 // pass testMode param, MessageIds will be empty
@@ -67,4 +74,4 @@ if (delayedSendResult.Status == "success" && delayedSendResult.MessageIds.Any())
 			foreach (var status in cancelResult.Statuses)
 				Console.WriteLine($"The status of the message {status.Key} is {status.Value}");
 }
-```
+````

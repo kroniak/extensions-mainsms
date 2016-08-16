@@ -6,7 +6,7 @@
   "packOptions": {
     "licenseUrl": "https://raw.githubusercontent.com/kroniak/extensions-mainsms/master/LICENSE",
     "projectUrl": "https://github.com/kroniak/extensions-mainsms",
-    "releaseNotes": "",
+    "releaseNotes": "https://github.com/kroniak/extensions-mainsms/releases",
     "repository": {
       "type": "git",
       "url": "https://github.com/kroniak/extensions-mainsms.git"

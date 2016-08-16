@@ -1,4 +1,6 @@
-﻿using System;
+﻿// Licensed under the GPL License, Version 3.0. See LICENSE in the git repository root for license information.
+
+using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
@@ -6,19 +8,13 @@ using System.Xml.Linq;
 
 namespace MainSMS
 {
-	/// <summary>
-	///     Base abstract class for XML response.
-	/// </summary>
+	/// <summary>Base abstract class for XML response.</summary>
 	public abstract class BaseResponse
 	{
-		/// <summary>
-		///     The response.
-		/// </summary>
+		/// <summary>The response.</summary>
 		protected readonly XContainer Response;
 
-		/// <summary>
-		///     Initializes a new instance of the <see cref="BaseResponse" /> class.
-		/// </summary>
+		/// <summary>Initializes a new instance of the <see cref="BaseResponse" /> class.</summary>
 		/// <param name="response">The response.</param>
 		protected BaseResponse(XContainer response)
 		{
@@ -29,41 +25,23 @@ namespace MainSMS
 			Url = Response?.Element("url")?.Value;
 		}
 
-		/// <summary>
-		///     Gets the error code.
-		/// </summary>
-		/// <value>
-		///     The error code.
-		/// </value>
+		/// <summary>Gets the error code.</summary>
+		/// <value>The error code.</value>
 		public string ErrorCode { get; private set; }
 
-		/// <summary>
-		///     Gets the error message.
-		/// </summary>
-		/// <value>
-		///     The error message.
-		/// </value>
+		/// <summary>Gets the error message.</summary>
+		/// <value>The error message.</value>
 		public string ErrorMessage { get; protected set; }
 
-		/// <summary>
-		///     Gets the status of the request.
-		/// </summary>
-		/// <value>
-		///     The status.
-		/// </value>
+		/// <summary>Gets the status of the request.</summary>
+		/// <value>The status.</value>
 		public string Status { get; protected set; }
 
-		/// <summary>
-		///     Gets the URL.
-		/// </summary>
-		/// <value>
-		///     The URL.
-		/// </value>
+		/// <summary>Gets the URL.</summary>
+		/// <value>The URL.</value>
 		public string Url { get; private set; }
 
-		/// <summary>
-		///     Errors handler.
-		/// </summary>
+		/// <summary>Errors handler.</summary>
 		protected bool ErrorsHandler()
 		{
 			if (Response?.Element("status")?.Value == "success")
@@ -78,41 +56,7 @@ namespace MainSMS
 			return false;
 		}
 
-		/// <summary>
-		///     Extracts the strings from XML array.
-		/// </summary>
-		/// <param name="key">The key.</param>
-		protected IEnumerable<string> ExtractStringsFromArray(string key)
-		{
-			var xElements = Response.Element(key)?.Elements();
-
-			if (xElements != null)
-				return xElements.Select(rec => rec.Value);
-
-			Status = "error";
-			ErrorMessage = $"List {key} is empty";
-			return null;
-		}
-
-		/// <summary>
-		///     Extracts the ints from XML array.
-		/// </summary>
-		/// <param name="key">The key.</param>
-		protected IEnumerable<int> ExtractIntsFromArray(string key)
-		{
-			var xElements = Response.Element(key)?.Elements();
-
-			if (xElements != null)
-				return xElements.Select(rec => int.Parse(rec.Value));
-
-			Status = "error";
-			ErrorMessage = $"List {key} is empty";
-			return null;
-		}
-
-		/// <summary>
-		///     Extract the double from value.
-		/// </summary>
+		/// <summary>Extract the double from value.</summary>
 		/// <param name="key">The key.</param>
 		protected double ExtractDouble(string key)
 		{
@@ -130,21 +74,19 @@ namespace MainSMS
 
 					return result;
 
-				ErrorMessage = $"Cannot convert value {key} from string";
+				ErrorMessage = $"Cannot convert value {key} from string.";
 				Status = "error";
 				return 0;
 			}
-			catch (FormatException)
+			catch (Exception exception)
 			{
-				ErrorMessage = $"Cannot convert value {key} from string";
+				ErrorMessage = $"Cannot convert value {key} from string ({exception.Message}).";
 				Status = "error";
 				return 0;
 			}
 		}
 
-		/// <summary>
-		///     Extracts the int from value.
-		/// </summary>
+		/// <summary>Extracts the int from value.</summary>
 		/// <param name="key">The key.</param>
 		protected int ExtractInt(string key)
 		{
@@ -152,19 +94,47 @@ namespace MainSMS
 
 			try
 			{
-				if (count?.Attribute("type")?.Value == "integer")
+				if (count?.Value != null)
 					return int.Parse(count.Value);
 
-				ErrorMessage = $"Cannot convert value {key} from string";
+				ErrorMessage = $"Cannot convert value {key} from string.";
 				Status = "error";
 				return 0;
 			}
-			catch (FormatException)
+			catch (Exception exception)
 			{
-				ErrorMessage = $"Cannot convert value {key} from string";
+				ErrorMessage = $"Cannot convert value {key} from string ({exception.Message}).";
 				Status = "error";
 				return 0;
 			}
+		}
+
+		/// <summary>Extracts the ints from XML array.</summary>
+		/// <param name="key">The key.</param>
+		protected IEnumerable<int> ExtractIntsFromArray(string key)
+		{
+			var xElements = Response.Element(key)?.Elements();
+
+			if (xElements != null)
+				return xElements.Select(rec => int.Parse(rec.Value));
+
+			Status = "error";
+			ErrorMessage = $"List {key} is empty";
+			return null;
+		}
+
+		/// <summary>Extracts the strings from XML array.</summary>
+		/// <param name="key">The key.</param>
+		protected IEnumerable<string> ExtractStringsFromArray(string key)
+		{
+			var xElements = Response.Element(key)?.Elements();
+
+			if (xElements != null)
+				return xElements.Select(rec => rec.Value);
+
+			Status = "error";
+			ErrorMessage = $"List {key} is empty";
+			return null;
 		}
 	}
 }
