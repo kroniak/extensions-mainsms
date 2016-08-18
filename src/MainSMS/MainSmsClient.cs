@@ -10,13 +10,10 @@ using System.Xml.Linq;
 using Flurl;
 using Flurl.Http;
 using Flurl.Http.Xml;
-using Newtonsoft.Json.Linq;
 #if NETSTD
 using System.Text.Encodings.Web;
-
 #elif NET45
 using System.Web;
-
 #endif
 
 namespace MainSMS
@@ -215,9 +212,8 @@ namespace MainSMS
 		/// <param name="url">The URL.</param>
 		/// <param name="prepareMethodCall">The prepare method call.</param>
 		/// <param name="queryParams">The query parameters.</param>
-		/// <param name="format">The format.</param>
 		private async Task<XDocument> GetXDocumentAsync(Url url, Action<Url> prepareMethodCall = null,
-			string queryParams = null, string format = "XML")
+			string queryParams = null)
 		{
 			XDocument response;
 
@@ -246,25 +242,8 @@ namespace MainSMS
 				// add prepared url to response to testing
 				errorResponse.Element("result")?.Add(new XElement("url", resultUrl));
 
-				// do HTTP request 
-				if (format == "JSON")
-				{
-					var jsonJObject = JObject.Parse(await resultUrl.GetStringAsync());
-					if ((string) jsonJObject["status"] == "success")
-						response = new XDocument(
-							new XElement("result",
-								new XElement("status", (string) jsonJObject["status"]),
-								new XElement("cost", (string) jsonJObject["cost"]),
-								new XElement("phones", (string) jsonJObject["phones"]),
-								new XElement("parts", (string) jsonJObject["parts"])));
-					else
-						response = new XDocument(
-							new XElement("result",
-								new XElement("status", "error"),
-								new XElement("message", (string) jsonJObject["errors"]["message"])));
-				}
-				else
-					response = await resultUrl.GetXDocumentAsync();
+				// do HTTP request
+				response = await resultUrl.GetXDocumentAsync();
 
 				// add prepared url to response to testing
 				response.Element("result")?.Add(new XElement("url", resultUrl));
@@ -289,8 +268,8 @@ namespace MainSMS
 		{
 			// Sort query params collection by the values
 			var queryParamsValuesArray = (from p in url.QueryParams
-				orderby p.Name
-				select (string) p.Value).ToArray();
+										  orderby p.Name
+										  select (string) p.Value).ToArray();
 
 			// Make "params;params" string
 			var queryParamsString = string.Join(";", queryParamsValuesArray);
@@ -383,13 +362,9 @@ namespace MainSMS
 				.AppendPathSegment("send")
 				.SetQueryParam("messages", messagesForHash)
 				.SetQueryParam("sender", sender)
-				.SetQueryParam("test", testMode ? "1" : "0")
-				.RemoveQueryParam("format"); // this is bug in mainsms api.
+				.SetQueryParam("test", testMode ? "1" : "0");
 
-			var responce = await GetXDocumentAsync(url,
-				PrepareUrlForBatch,
-				messagesParam,
-				"JSON"); // this is bug in mainsms api.
+			var responce = await GetXDocumentAsync(url, PrepareUrlForBatch, messagesParam);
 
 			return new SendBatchResult(responce);
 		}

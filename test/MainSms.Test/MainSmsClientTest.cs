@@ -144,7 +144,7 @@ namespace MainSms.Test
 		[Fact]
 		public async void SendBatchAsync()
 		{
-			_client.TestUrl = "http://www.mocky.io/v2/57b33fbd1000008816b478ab";
+			_client.TestUrl = "http://www.mocky.io/v2/57b5a20c0f00002b0bae6eee";
 
 			var messages = new Dictionary<string, string>();
 			messages.Add("87000000001", "test message 1");
