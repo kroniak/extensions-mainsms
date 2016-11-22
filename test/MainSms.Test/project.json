@@ -16,21 +16,20 @@
   "testRunner": "xunit",
 
   "dependencies": {
-    "dotnet-test-xunit": "2.2.0-preview2-build1029",
+    "dotnet-test-xunit": "2.2.0-preview2-*",
     "MainSMS": { "target": "project" },
-    "xunit": "2.1.0"
+    "System.Diagnostics.TraceSource": "4.3.0",
+    "xunit": "2.2.0-beta4-*"
   },
 
   "frameworks": {
-    "netcoreapp1.0": {
+    "netcoreapp1.1": {
       "dependencies": {
         "Microsoft.NETCore.App": {
           "type": "platform",
-          "version": "1.0.0"
-        },
-        "System.Diagnostics.TraceSource": "4.0.0"
-      },
-      "imports": [ "dotnet54" ]
+          "version": "1.1.0"
+        }
+      }
     }
   }
 }
