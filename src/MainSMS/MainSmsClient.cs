@@ -10,7 +10,7 @@ using System.Xml.Linq;
 using Flurl;
 using Flurl.Http;
 using Flurl.Http.Xml;
-#if NETSTD
+#if NETSTANDARD1_4
 using System.Text.Encodings.Web;
 #elif NET45
 using System.Web;
@@ -92,7 +92,7 @@ namespace MainSMS
 		/// <param name="message">The message.</param>
 		private static string Encode(string message)
 		{
-#if NETSTD
+#if NETSTANDARD1_4
 			return UrlEncoder.Default.Encode(message);
 #elif NET45
 			return HttpUtility.UrlEncode(message);
