@@ -6,7 +6,8 @@
 [MainSMS.ru](http://MainSMS.ru) is a service to sending text message to the recipients from Russia and nearest countries.
 
 ### Install
-> The package is compiled for .NET Platform Standard 1.4 which include .NET Core and other targets. [Read about it](https://github.com/dotnet/corefx/blob/master/Documentation/architecture/net-platform-standard.md#mapping-the-net-platform-standard-to-platforms).
+
+> The package is compiled for .NET 45 and .NET Platform Standard 1.4 which include .NET Core and other targets. [Read about it](https://github.com/dotnet/corefx/blob/master/Documentation/architecture/net-platform-standard.md#mapping-the-net-platform-standard-to-platforms).
 
 `PM> Install-Package MainSMS`
 
