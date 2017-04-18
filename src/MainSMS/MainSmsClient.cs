@@ -53,8 +53,8 @@ namespace MainSMS
 		// Default API URL
 		private string ApiUrl
 		{
-			get { return _testMode ? TestUrl : _apiUrl; }
-			set { _apiUrl = value; }
+			get => _testMode ? TestUrl : _apiUrl;
+		    set => _apiUrl = value;
 		}
 
 		/// <summary>Gets or sets the test URL.</summary>
