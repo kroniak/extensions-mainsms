@@ -42,8 +42,8 @@ if (sendResult.MessageIds.Any()) //print receaved message ids.
 
 // Batch sending messages
 var messages = new Dictionary<string, string>();
-messages.Add("89214045559", "test message 1");
-messages.Add("89213020041", "test message 2");
+messages.Add("89214445555", "test message 1");
+messages.Add("89212223341", "test message 2");
 
 var result = await _client.SendBatchAsync(messages, sender: "sendertest");
 

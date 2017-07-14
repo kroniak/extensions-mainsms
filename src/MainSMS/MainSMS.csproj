@@ -3,7 +3,7 @@
   <PropertyGroup>
     <TargetFrameworks>net45;netstandard1.4</TargetFrameworks>
     <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
-    <Version>1.4.0</Version>
+    <Version>1.4.1</Version>
     <PackageIconUrl>https://mainsms.ru/assets/main_logo-0dc68c20a04691885c52553127586c7a.png</PackageIconUrl>
     <PackageLicenseUrl>https://raw.githubusercontent.com/kroniak/extensions-mainsms/master/LICENSE</PackageLicenseUrl>
     <PackageProjectUrl>https://github.com/kroniak/extensions-mainsms</PackageProjectUrl>
@@ -24,7 +24,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Flurl.Http.Xml" Version="1.4.0" />
+    <PackageReference Include="Flurl.Http.Xml" Version="1.4.1" />
   </ItemGroup>
 
   <ItemGroup Condition="'$(TargetFramework)' == 'netstandard1.4'">
